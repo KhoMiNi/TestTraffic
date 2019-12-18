@@ -73,10 +73,13 @@ public class App
         App.testAddr = testAddr;
     }
 
+
+
     public static void main(String[] args )
     {
         System.out.println( "Test task" );
-        if(args[0]!= null) setFilterAddress(args[0]);
+
+        if(args.length> 0 ) setFilterAddress(args[0]);
 
         Thread dbreader = new Thread(new LimitsReader());
         dbreader.start();
