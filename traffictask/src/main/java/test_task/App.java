@@ -79,19 +79,19 @@ public class App
     {
         System.out.println( "Test task" );
 
-        if(args.length> 0 ) setFilterAddress(args[0]);
+        if(args.length> 0 ) setFilterAddress(args[0]);              //check for ip address and set it as filter for PacketCatcher
 
-        Thread dbreader = new Thread(new LimitsReader());
+        Thread dbreader = new Thread(new LimitsReader());           //thread for reading and updating limits from db
         dbreader.start();
-        PcapNetworkInterface device = getNetworkDevice();
+        PcapNetworkInterface device = getNetworkDevice();           //Pcap4J needs administrator/root privileges
         System.out.println("You chose: " + device);
 
         if (device == null) {
-            System.out.println("No device chosen.");
+            System.out.println("No device chosen. ");               //No device or administrator/root privileges
             System.exit(1);
         }
-        Thread packets = new Thread(new PacketCatcher(device));
-        Thread producer = new Thread(new TrafficProducer());
+        Thread packets = new Thread(new PacketCatcher(device));     //thread for catching and processing packets
+        Thread producer = new Thread(new TrafficProducer());        //thread for kafka producer
         producer.start();
         packets.start();
 
@@ -120,6 +120,7 @@ public class App
     } catch (UnknownHostException e) {
         e.printStackTrace();
         System.out.println("test address is null");
+
     }
 }
 
