@@ -8,33 +8,21 @@ import java.net.Inet4Address;
 
 public class PacketCatcher implements Runnable {
     PcapNetworkInterface device;
+    PcapHandle handle = null;
     public PacketCatcher(PcapNetworkInterface device) {
         this.device = device;
     }
 
     @Override
     public void run() {
-        PcapHandle handle = null;
-        try{
-            handle = device.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 50);
-        }catch (PcapNativeException e){
-            System.out.println("failed to create handle");
-            e.printStackTrace();
-        }
-        //
+        deviceOpen();
         PacketListener listener = new PacketListener() {
             @Override
             public void gotPacket(Packet packet) {
                 System.out.println(packet.length());
                 IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
                 Inet4Address srcAddr = ipV4Packet.getHeader().getSrcAddr();
-                //System.out.println(srcAddr);
-                if(App.getTestAddr() == null) {
-                    App.setTrafficSummary(App.getTrafficSummary()+ packet.length());
-                }else if(srcAddr.equals(App.getTestAddr())){
-                    //System.out.println(srcAddr);
-                    App.setTrafficSummary(App.getTrafficSummary()+ packet.length());
-                }
+                trafficCount(packet.length(), srcAddr);
                 Thread.yield();
             }
         };
@@ -49,10 +37,27 @@ public class PacketCatcher implements Runnable {
             System.out.println("failed to create handle");
             e.printStackTrace();
         }catch (NotOpenException e) {
-            System.out.println("failed to create handle");
+            System.out.println("failed to open device");
             e.printStackTrace();
         }
 
         handle.close();
+    }
+
+    public void deviceOpen(){
+        try{
+            handle = device.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 50);
+        }catch (PcapNativeException e){
+            System.out.println("failed to create handle");
+            e.printStackTrace();
+        }
+    }
+
+    public void trafficCount(int length, Inet4Address srcAddr){
+        if(App.getTestAddr() == null) {
+            App.setTrafficSummary(App.getTrafficSummary()+ length);
+        }else if(srcAddr.equals(App.getTestAddr())){
+            App.setTrafficSummary(App.getTrafficSummary()+ length);
+        }
     }
 }
