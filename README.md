@@ -15,23 +15,27 @@ INSERT INTO limits_per_hour(limit_name, limit_value, effective_date) VALUES ('mi
 
 Для работы Kafka у вас должен быть запущен сервер ZooKeeper из папки где у вас установлена Kafka: 
 
-Linux: bin/zookeeper-server-start.sh config/zookeeper.properties
+Linux: bin/zookeeper-server-start.sh config/zookeeper.properties 
+
 Windows: bin\windows\zookeeper-server-start.bat config/zookeeper.properties
 
 Также у вас должен быть запущен сервер Kafka:
 
-Linux: bin/kafka-server-start.sh config/server.properties
+Linux: bin/kafka-server-start.sh config/server.properties 
+
 Windows: bin\windows\kafka-server-start.bat config/server.properties
 
 
 В нем должен быть создан топик "alerts":
 
-Linux: bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic alerts
+Linux: bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic alerts 
+
 Windows: bin\windows\kafka-topics.bat --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic alerts
 
 Также можно запустить consumer для чтения полученных сообщений: 
 
 Linux: bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic alerts --from-beginning
+
 Windows: bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic alerts --from-beginning
 
 Приложение запускается командой:
