@@ -1,0 +1,48 @@
+# TestTraffic
+
+Приложение выполняет следующие функции:
+- Получает значение и время лимитов из БД.
+- Обрабатывает трафик на локальном устройстве
+- Отправляет сообщение в apache kafka при превышении трафиком лимитов.
+
+Для обработки трафика приложение использует библиотеку Pcap4j, для работы которой требуются права администратора и установленные библиотеки WinPCap/Libpcap(windows/linux соответствено).
+Предполагается, что у вас запущена БД PostgreSQL c базой "postgres" c доступом для пользователя "postges" c паролем "testpassword"  
+
+CREATE SCHEMA traffic_limits;
+CREATE TABLE limits_per_hour(limit_name text, limit_value integer, effective_date timestamp);
+INSERT INTO limits_per_hour(limit_name, limit_value, effective_date) VALUES ('min', 1024, '2019-12-17 04:05:06'),('max', 1073741824, '2019-12-17 04:05:06');
+
+
+Для работы Kafka у вас должен быть запущен сервер ZooKeeper из папки где у вас установлена Kafka: 
+
+Linux: bin/zookeeper-server-start.sh config/zookeeper.properties 
+
+Windows: bin\windows\zookeeper-server-start.bat config/zookeeper.properties
+
+Также у вас должен быть запущен сервер Kafka:
+
+Linux: bin/kafka-server-start.sh config/server.properties 
+
+Windows: bin\windows\kafka-server-start.bat config/server.properties
+
+
+В нем должен быть создан топик "alerts":
+
+Linux: bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic alerts 
+
+Windows: bin\windows\kafka-topics.bat --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic alerts
+
+Также можно запустить consumer для чтения полученных сообщений: 
+
+Linux: bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic alerts --from-beginning
+
+Windows: bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic alerts --from-beginning
+
+Приложение запускается командой:
+
+java -jar traffictask.jar 
+
+В качестве параметра запуска можно указать ip-адрес, в таком случае будет учитываться только трафик для этого адреса.
+Для примера:
+
+java -jar traffictask.jar -192.168.0.1
